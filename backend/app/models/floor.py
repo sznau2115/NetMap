@@ -1,7 +1,10 @@
+# backend/app/models/floor.py
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from backend.app.database import Base
+from app.database import Base
+
+
 class Floor(Base):
     __tablename__ = "floors"
 
@@ -11,13 +14,12 @@ class Floor(Base):
 
     building_id = Column(
         Integer,
-        back_populates="floors",
-        nullable=False,
+        ForeignKey("buildings.id"),
+        nullable=False
     )
-    building = relationship(
-        "Building",
-        back_populates="floors"
-    )
+
+    building = relationship("Building", back_populates="floors")
+
     devices = relationship(
         "Device",
         back_populates="floor",

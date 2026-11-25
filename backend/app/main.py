@@ -1,14 +1,25 @@
+# backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
-
-from app.database import get_db, Base, engine
+from pathlib import Path
+from app.database import Base, engine, get_db
 from app import models
+from app.routers import floor
 
 app = FastAPI(
     title="NetMap API",
-    description="API for NetMap application",
-    version="0.1.0",
+    description="Network infrastructure visualization and monitoring",
+    version="0.1.0"
+)
+UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory=str(UPLOAD_DIR)),
+    name="uploads"
 )
 
 app.add_middleware(
@@ -19,12 +30,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create database tables
+
+# Tworzenie tabel podczas uruchamiania aplikacji
 Base.metadata.create_all(bind=engine)
 
+app.include_router(floor.router)
 
 @app.get("/")
-async def root():
+def root():
     return {
         "application": "NetMap",
         "status": "running",
@@ -33,8 +46,8 @@ async def root():
 
 
 @app.get("/api/health")
-async def health_check():
-    return {"status": "healthy"}
+def health_check():
+    return {"status": "ok"}
 
 
 @app.get("/api/database/health")
