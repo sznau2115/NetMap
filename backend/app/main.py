@@ -6,7 +6,7 @@ from sqlalchemy import text
 from pathlib import Path
 from app.database import Base, engine, get_db
 from app import models
-from app.routers import floor
+from app.routers import floor, device
 
 app = FastAPI(
     title="NetMap API",
@@ -35,6 +35,7 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(floor.router)
+app.include_router(device.router)
 
 @app.get("/")
 def root():
